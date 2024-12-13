@@ -1,0 +1,49 @@
+---
+import ClientService from "../../db/ClientService";
+import Layout from "../../layouts/Layout.astro";
+
+const { data: clients } = await ClientService.getClients();
+---
+
+<Layout title="Clientes">
+    <div class="w-full mx-auto">
+        <h1 class="text-3xl font-bold mb-6">Clientes</h1>
+        <table class="table-auto w-full">
+            <thead>
+                <tr>
+                    <th class="px-4 py-2">Nombre</th>
+                    <th class="px-4 py-2">Teléfono</th>
+                    <th class="px-4 py-2">Direcciones</th>
+                    <th class="px-4 py-2">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {
+                    clients?.map((client) => (
+                        <tr>
+                            <td class="border px-4 py-2">{client.name}</td>
+                            <td class="border px-4 py-2">{client.phone}</td>
+                            <td class="border px-4 py-2">
+                                {client.addresses?.length}
+                            </td>
+                            <td class="border px-4 py-2">
+                                <a
+                                    href={`/clients/${client.id}/edit`}
+                                    class="text-blue-500 hover:underline"
+                                >
+                                    Editar
+                                </a>
+                                <a
+                                    href={`/clients/${client.id}/delete`}
+                                    class="text-red-500 hover:underline ml-2"
+                                >
+                                    Eliminar
+                                </a>
+                            </td>
+                        </tr>
+                    ))
+                }
+            </tbody>
+        </table>
+    </div>
+</Layout>

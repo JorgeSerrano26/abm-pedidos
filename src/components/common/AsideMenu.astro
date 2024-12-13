@@ -1,0 +1,115 @@
+---
+import Metrics from "~/components/icons/Metrics.astro";
+import Order from "~/components/icons/Order.astro";
+import Package from "~/components/icons/Package.astro";
+import Truck from "~/components/icons/Truck.astro";
+import { links } from "~/config/routes";
+import { cn } from "~/lib/cn";
+import Users from "../icons/Users.astro";
+
+type Props = {
+    class?: string;
+};
+
+const iconMap = {
+    metrics: Metrics,
+    order: Order,
+    package: Package,
+    truck: Truck,
+    users: Users,
+};
+
+const { class: className, ...props } = Astro.props;
+const pathname = new URL(Astro.request.url).pathname;
+const currentPath = pathname;
+---
+
+<aside class={cn(className, "bg-gray-900 p-4 rounded-r")} {...props}>
+    <nav class="flex flex-col">
+        {
+            links.map((link) => {
+                const sharedItemsClass =
+                    "flex items-center text-white py-1 px-2 hover:bg-gray-800 hover:rounded-md transition-colors";
+                const sharedSelectedItemsClass = "font-bold";
+
+                const Icon = iconMap[link.icon] ?? null;
+
+                if (!link.sublinks) {
+                    const isActive =
+                        link.href === currentPath ||
+                        (currentPath.startsWith(link.href) &&
+                            link.href !== "/");
+
+                    return (
+                        <a
+                            href={link.href}
+                            class={cn(
+                                sharedItemsClass,
+                                isActive && sharedSelectedItemsClass,
+                            )}
+                        >
+                            {link.icon && <Icon class="mr-2" />}
+                            {link.label}
+                        </a>
+                    );
+                }
+
+                return (
+                    <div>
+                        <input
+                            type="checkbox"
+                            class="peer hidden"
+                            id={link.label}
+                        />
+                        <label
+                            for={link.label}
+                            class={cn(
+                                sharedItemsClass,
+                                "justify-between hover:cursor-pointer",
+                                currentPath.startsWith(link.href) &&
+                                    sharedSelectedItemsClass,
+                            )}
+                        >
+                            <span class="flex items-center mr-2">
+                                {link.icon && <Icon class="mr-2" />}
+                                {link.label}
+                            </span>
+                            <span class="transform transition-transform duration-300 peer-checked:rotate-180">
+                                <svg
+                                    class="w-3 h-3 peer-checked:rotate-180"
+                                    aria-hidden="true"
+                                    fill="none"
+                                    viewBox="0 0 10 6"
+                                >
+                                    <path
+                                        stroke="currentColor"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="m1 1 4 4 4-4"
+                                    />
+                                </svg>
+                            </span>
+                        </label>
+                        <ul class="pl-4 hidden peer-checked:block ">
+                            {link.sublinks.map((sublink) => (
+                                <li class="mb-1">
+                                    <a
+                                        href={sublink.href}
+                                        class={cn(
+                                            sharedItemsClass,
+                                            currentPath === sublink.href &&
+                                                sharedSelectedItemsClass,
+                                        )}
+                                    >
+                                        {sublink.label}
+                                    </a>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                );
+            })
+        }
+    </nav>
+</aside>

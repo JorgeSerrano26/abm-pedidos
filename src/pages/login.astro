@@ -1,0 +1,59 @@
+---
+import { supabase } from "../lib/supabase";
+
+// Verifica la sesión al cargar la página
+const {
+    data: { session },
+} = await supabase.auth.getSession();
+
+if (session) {
+    return Astro.redirect("/dashboard");
+}
+
+let errorMessage = "";
+
+if (Astro.request.method === "POST") {
+    const formData = await Astro.request.formData();
+    const email = formData.get("email");
+    const password = formData.get("password");
+
+    if (!email || !password) {
+        errorMessage = "Email and password are required";
+        return;
+    }
+
+    const { error } = await supabase.auth.signInWithPassword({
+        email: email.toString(),
+        password: password.toString(),
+    });
+
+    if (error) {
+        errorMessage = error.message;
+    } else {
+        return Astro.redirect("/dashboard");
+    }
+}
+---
+
+<html>
+    <head>
+        <title>Login</title>
+    </head>
+    <body>
+        <h1>Login</h1>
+        {errorMessage && <p style="color: red;">{errorMessage}</p>}
+        <form method="POST">
+            <label>
+                Email:
+                <input type="email" name="email" required />
+            </label>
+            <br />
+            <label>
+                Password:
+                <input type="password" name="password" required />
+            </label>
+            <br />
+            <button type="submit">Log In</button>
+        </form>
+    </body>
+</html>
